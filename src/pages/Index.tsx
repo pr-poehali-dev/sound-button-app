@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import Icon from "@/components/ui/icon";
 import { useSoundEngine } from "@/hooks/useSoundEngine";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 type Screen = "panel" | "settings";
 
@@ -69,13 +70,33 @@ const SETTINGS_CONFIG = [
   { key: "balance"      as keyof Settings, label: "Баланс L/R",      sub: "Balance",       icon: "AlignCenter", color: "#facc15" },
 ];
 
+const DEFAULT_SETTINGS: Settings = {
+  masterVolume: 75, bass: 50, treble: 60, reverb: 30, echo: 20, balance: 50,
+};
+
+// Buttons saved without audio blobs (those can't be serialized)
+type SavedButton = Omit<SoundButton, "active" | "customAudio">;
+
+function mergeWithDefaults(saved: SavedButton[]): SoundButton[] {
+  return SOUND_BUTTONS.map(def => {
+    const s = saved.find(b => b.id === def.id);
+    return s ? { ...def, ...s, active: false } : { ...def };
+  });
+}
+
 export default function Index() {
   const { playSound } = useSoundEngine();
   const [screen, setScreen] = useState<Screen>("panel");
-  const [buttons, setButtons] = useState<SoundButton[]>(SOUND_BUTTONS);
-  const [settings, setSettings] = useState<Settings>({
-    masterVolume: 75, bass: 50, treble: 60, reverb: 30, echo: 20, balance: 50,
-  });
+
+  const [savedButtons, setSavedButtons] = useLocalStorage<SavedButton[]>(
+    "sb_buttons",
+    SOUND_BUTTONS.map(({ active: _a, customAudio: _c, ...rest }) => rest)
+  );
+  const [buttons, setButtonsState] = useState<SoundButton[]>(() =>
+    mergeWithDefaults(savedButtons)
+  );
+
+  const [settings, setSettings] = useLocalStorage<Settings>("sb_settings", DEFAULT_SETTINGS);
   const [flashId, setFlashId]         = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState<string | null>(null);
   const [expandedId, setExpandedId]   = useState<string | null>(null);
@@ -84,8 +105,15 @@ export default function Index() {
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const audioRefs     = useRef<Record<string, HTMLAudioElement>>({});
 
-  const updateBtn = (id: string, patch: Partial<SoundButton>) =>
-    setButtons(prev => prev.map(b => b.id === id ? { ...b, ...patch } : b));
+  const updateBtn = (id: string, patch: Partial<SoundButton>) => {
+    setButtonsState(prev => {
+      const next = prev.map(b => b.id === id ? { ...b, ...patch } : b);
+      setSavedButtons(next.map(({ active: _a, customAudio: _c, ...rest }) => rest));
+      return next;
+    });
+  };
+
+  const setButtons = setButtonsState;
 
   const handleSoundClick = (id: string) => {
     setFlashId(id);
@@ -401,11 +429,22 @@ export default function Index() {
             </div>
           ))}
 
-          <button onClick={() => setSettings({ masterVolume:75, bass:50, treble:60, reverb:30, echo:20, balance:50 })}
-            className="w-full py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 border"
-            style={{ background:'hsl(var(--card))', color:'hsl(var(--muted-foreground))', borderColor:'hsl(var(--border))' }}>
-            <Icon name="RotateCcw" size={15} />Сбросить настройки звука
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setSettings(DEFAULT_SETTINGS)}
+              className="flex-1 py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 border"
+              style={{ background:'hsl(var(--card))', color:'hsl(var(--muted-foreground))', borderColor:'hsl(var(--border))' }}>
+              <Icon name="RotateCcw" size={15} />Сбросить звук
+            </button>
+            <button onClick={() => {
+              const def = SOUND_BUTTONS.map(({ active: _a, customAudio: _c, ...rest }) => rest);
+              setSavedButtons(def);
+              setButtonsState(SOUND_BUTTONS.map(b => ({ ...b, active: false })));
+            }}
+              className="flex-1 py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 border"
+              style={{ background:'hsl(var(--card))', color:'hsl(var(--muted-foreground))', borderColor:'hsl(var(--border))' }}>
+              <Icon name="RefreshCw" size={15} />Сбросить кнопки
+            </button>
+          </div>
           <div className="h-4" />
         </main>
       )}
