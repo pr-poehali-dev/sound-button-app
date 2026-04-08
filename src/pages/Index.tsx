@@ -287,10 +287,8 @@ export default function Index() {
                   <div className="p-4">
                     <div className="flex items-center gap-3">
                       {/* Preview */}
-                      <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-xl"
-                        style={{ background:btn.gradient, boxShadow:`0 0 10px ${btn.glowColor}40` }}>
-                        {btn.emoji}
-                      </div>
+                      <div className="w-10 h-10 rounded-xl flex-shrink-0"
+                        style={{ background:btn.gradient, boxShadow:`0 0 10px ${btn.glowColor}40` }} />
 
                       {/* Label */}
                       <div className="flex-1 min-w-0">
@@ -308,7 +306,7 @@ export default function Index() {
                           </button>
                         )}
                         {btn.customAudioName
-                          ? <p className="text-xs mt-0.5 truncate max-w-[130px]" style={{ color:btn.glowColor }}>🎵 {btn.customAudioName}</p>
+                          ? <p className="text-xs mt-0.5 truncate max-w-[130px]" style={{ color:btn.glowColor }}>{btn.customAudioName}</p>
                           : <p className="text-xs text-muted-foreground mt-0.5">Встроенный звук</p>
                         }
                       </div>
@@ -325,23 +323,6 @@ export default function Index() {
                   {/* Expanded panel */}
                   {expandedId === btn.id && (
                     <div className="px-4 pb-4 space-y-4" style={{ borderTop:`1px solid hsl(var(--border))`, paddingTop:14 }}>
-
-                      {/* Emoji picker */}
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-2 font-medium">Иконка</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {EMOJI_LIST.map(em => (
-                            <button key={em} onClick={() => { updateBtn(btn.id,{emoji:em}); setEmojiPickerId(null); }}
-                              className="w-9 h-9 rounded-xl flex items-center justify-center text-lg transition-all hover:scale-110"
-                              style={{
-                                background: btn.emoji===em ? `${btn.glowColor}30` : 'rgba(255,255,255,0.05)',
-                                border: btn.emoji===em ? `1.5px solid ${btn.glowColor}` : '1.5px solid transparent',
-                              }}>
-                              {em}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
 
                       {/* Color presets */}
                       <div>
