@@ -117,18 +117,28 @@ export default function Index() {
 
   const handleSoundClick = (id: string) => {
     setFlashId(id);
-    updateBtn(id, { active: !buttons.find(b => b.id === id)?.active });
     setTimeout(() => setFlashId(null), 500);
 
     const btn = buttons.find(b => b.id === id);
+    const isActive = btn?.active ?? false;
+
+    updateBtn(id, { active: !isActive });
+
     if (btn?.customAudio) {
       if (!audioRefs.current[id]) audioRefs.current[id] = new Audio(btn.customAudio);
       const audio = audioRefs.current[id];
-      audio.volume = settings.masterVolume / 100;
-      audio.currentTime = 0;
-      audio.play();
+      if (isActive) {
+        audio.pause();
+        audio.currentTime = 0;
+      } else {
+        audio.volume = settings.masterVolume / 100;
+        audio.currentTime = 0;
+        audio.play();
+      }
     } else {
-      playSound(id as Parameters<typeof playSound>[0], settings);
+      if (!isActive) {
+        playSound(id as Parameters<typeof playSound>[0], settings);
+      }
     }
   };
 
