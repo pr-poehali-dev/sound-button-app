@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
+import { useSoundEngine } from "@/hooks/useSoundEngine";
 
 type Screen = "panel" | "settings";
 
@@ -42,6 +43,7 @@ const SETTINGS_CONFIG = [
 ];
 
 export default function Index() {
+  const { playSound } = useSoundEngine();
   const [screen, setScreen] = useState<Screen>("panel");
   const [buttons, setButtons] = useState<SoundButton[]>(SOUND_BUTTONS);
   const [settings, setSettings] = useState<Settings>({
@@ -59,6 +61,7 @@ export default function Index() {
     setButtons(prev =>
       prev.map(b => b.id === id ? { ...b, active: !b.active } : b)
     );
+    playSound(id as Parameters<typeof playSound>[0], settings);
     setTimeout(() => setFlashId(null), 500);
   };
 
