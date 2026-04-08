@@ -232,17 +232,16 @@ export default function Index() {
                 }}>
                 <div className="absolute inset-0 pointer-events-none" style={{ background:'linear-gradient(160deg,rgba(255,255,255,0.25) 0%,transparent 50%)' }} />
                 {btn.active && <div className="absolute inset-0 rounded-3xl border-2 border-white/30 animate-ping" />}
-                <div className="relative z-10 flex flex-col gap-2">
+                <div className="relative z-10 flex flex-col justify-between h-full gap-3">
                   <div className="flex items-start justify-between">
-                    <span className="text-3xl leading-none">{btn.emoji}</span>
+                    <span className="text-base font-black text-white leading-tight" style={{ fontFamily:'Montserrat,sans-serif' }}>{btn.label}</span>
                     {btn.customAudio && (
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 ml-1">
                         <Icon name="Music" size={11} className="text-white" />
                       </div>
                     )}
                   </div>
-                  <span className="text-sm font-bold text-white leading-tight">{btn.label}</span>
-                  <div className="flex items-end gap-0.5 h-5 mt-0.5">
+                  <div className="flex items-end gap-0.5 h-5">
                     {[1,2,3,4,5].map(n => (
                       btn.active
                         ? <div key={n} className="wave-bar w-1 rounded-full bg-white/70" style={{ animationDelay:`${n*0.1}s` }} />
